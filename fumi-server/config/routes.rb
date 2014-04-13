@@ -1,4 +1,6 @@
 FumiServer::Application.routes.draw do
+  #root "fumi_login/index"
+  get "fumi_login/index"
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
