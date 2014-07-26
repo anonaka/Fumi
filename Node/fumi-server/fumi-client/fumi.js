@@ -213,10 +213,11 @@ FumiWhiteBoard.prototype.handleMessage = function (msgarr) {
 /* main program starts here */
 
 function broadcastCommunicator() {
-    var bcserverURL = 'ws://127.0.0.1:7760/echo';
-	
     // assign socket to the global variable
-    _bcsocket = new WebSocket(bcserverURL, ['utf8']);
+    var host = window.document.location.host.replace(/:.*/, '');
+	var url = 'ws://' + host + ':3000';
+	console.log('connect fumi server:' + url);
+	_bcsocket = new WebSocket(url);
 
     // When the connection is open, send some data to the server
     _bcsocket.onopen = function () {};
@@ -357,16 +358,12 @@ function createMouseEventStage() {
 var _bcsocket;
 var _whiteBoardTable = {};
 
-function whiteboardMain() {
-    broadcastCommunicator();
-	createMouseEventStage();
-}
-
 // Global onload handler
 
 window.onload = function () {
     //try {
-        whiteboardMain();
+    	broadcastCommunicator();
+		createMouseEventStage();
     /*
     } catch (ex) {
         alert(ex);
