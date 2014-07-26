@@ -1,19 +1,5 @@
 "use strict";
 
-// These values must be set by the portal sever
-var whiteBoardMouseCnvasId = 'fumi_mouseevent_canvas';
-var userId = '0';
-var styleIndex = '0';
-
-
-function getScreenSize() {
-    //TODO must get screen size dynamically
-    return {
-        width: 500,
-        height: 500
-    }
-}
-
 var gStyleTable = [{
     canvasId : 'fumi_canvas01',
     initColor : 'blue',
@@ -295,7 +281,19 @@ var sendMouseEvent = function (command, evt) {
 	//console.log('Send:' + msg);
 }
 
+// These values must be set by the portal sever
+var whiteBoardMouseCnvasId = 'fumi_mouseevent_canvas';
+var userId = '0';
+var styleIndex = '0';
 var mouseEventStage;
+
+function getScreenSize() {
+    //TODO must get screen size dynamically
+    return {
+    width: 500,
+    height: 500
+    }
+}
 
 function createMouseEventStage() {
     var screen = getScreenSize();
@@ -361,14 +359,9 @@ var _whiteBoardTable = {};
 // Global onload handler
 
 window.onload = function () {
-    //try {
-    	broadcastCommunicator();
-		createMouseEventStage();
-    /*
-    } catch (ex) {
-        alert(ex);
-    }
-    */
+
+    broadcastCommunicator();
+    createMouseEventStage();
 }
 
 function cleanupCanvas (){
