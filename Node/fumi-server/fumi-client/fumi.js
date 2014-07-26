@@ -1,5 +1,17 @@
 "use strict";
 
+//TODO set canvas size on window size change
+$(window).bind("resize", function(){
+               var w = $(window).width();
+               var h = $(window).height();
+               
+               //$(".fumi_canvas").css("width", w + "px");
+               //$(".fumi_canvas").css("height", h + "px");
+               //$(".fumi_evt_canvas").css("width", w + "px");
+               //$(".fumi_evt_canvas").css("height", h + "px");
+               console.log('window width:'+ w + ' height:' + h);
+               });
+
 var gStyleTable = [{
     canvasId : 'fumi_canvas01',
     initColor : 'blue',
@@ -199,10 +211,16 @@ FumiWhiteBoard.prototype.handleMessage = function (msgarr) {
 /* main program starts here */
 
 function broadcastCommunicator() {
-    // assign socket to the global variable
-    var host = window.document.location.host.replace(/:.*/, '');
-	var url = 'ws://' + host + ':3000';
+
+    //TODO get port number form URL
+    //var location = window.location.toString();
+    //console.log(location);
+    
+    var port = '3000';
+    var host = window.document.location.host.replace(/:.*/, '')
+	var url = 'ws://' + host + ':' + port;
 	console.log('connect fumi server:' + url);
+    // assign socket to the global variable
 	_bcsocket = new WebSocket(url);
 
     // When the connection is open, send some data to the server
@@ -290,8 +308,8 @@ var mouseEventStage;
 function getScreenSize() {
     //TODO must get screen size dynamically
     return {
-    width: 500,
-    height: 500
+    width: $(window).width(),
+    height: $(window).height()
     }
 }
 
@@ -359,10 +377,13 @@ var _whiteBoardTable = {};
 // Global onload handler
 
 window.onload = function () {
-
+    // set canvas size
+    $(window).trigger("resize");
     broadcastCommunicator();
     createMouseEventStage();
 }
+        
+// prepare for unload
 
 function cleanupCanvas (){
 	// create dummy mouse event

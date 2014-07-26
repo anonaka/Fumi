@@ -9,8 +9,8 @@ body    {
   	left: 0;
 	//background-color: blue; 
 	z-index: 100;
-	width: 500;
-	height: 500;
+	//width: 500;
+	//height: 500;
 }
 
 .fumi_canvas{
@@ -18,8 +18,8 @@ body    {
   	top: 0;
   	left: 0;
 
-	background-color: yellow; 
+	background-color: GhostWhite; 
 	z-index:1;
-	width: 500;
-	height: 500;
+	//width: 500;
+	//height: 500;
 }
