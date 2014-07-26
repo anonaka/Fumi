@@ -4,7 +4,8 @@ var WebSocketServer = require('ws').Server
     , express = require('express')
     , app = express();
  
-app.use(express.static(__dirname + '/'));
+app.use(express.static(__dirname + '/fumi-client'));
+
 var server = http.createServer(app);
 var wss = new WebSocketServer({server:server});
  
