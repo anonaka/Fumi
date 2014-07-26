@@ -1,0 +1,7 @@
+$ node --version
+v0.10.6
+
+//install ws
+
+$ npm install ws
+$ npm install express

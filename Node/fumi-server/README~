@@ -1,0 +1,6 @@
+$ node --version
+v0.10.6
+
+//install ws
+
+$ npm install ws
