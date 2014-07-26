@@ -34,7 +34,7 @@ var gStyleTable = [{
 }];
 
 
-function BbWhiteBoard(id,rcvStyleIndex) {
+function FumiWhiteBoard(id,rcvStyleIndex) {
     this.wbUserId = id;
     this.drawMode = false;
     this.lines = new Array();
@@ -44,7 +44,7 @@ function BbWhiteBoard(id,rcvStyleIndex) {
     this.createDrawingStage();
 }
 
-BbWhiteBoard.prototype.setStyle = function (rcvStyleIndex) {
+FumiWhiteBoard.prototype.setStyle = function (rcvStyleIndex) {
     this.initWidth = '5';
     this.splineTention = 0.3;
     this.extWidth = 30;
@@ -59,7 +59,7 @@ BbWhiteBoard.prototype.setStyle = function (rcvStyleIndex) {
     this.canvasId = gStyleTable[rcvStyleIndex].canvasId;
 }
 
-BbWhiteBoard.prototype.createDrawingStage = function () {
+FumiWhiteBoard.prototype.createDrawingStage = function () {
     var screen = getScreenSize();
 
     var stage = new Kinetic.Stage({
@@ -81,7 +81,7 @@ BbWhiteBoard.prototype.createDrawingStage = function () {
 }
 
 
-BbWhiteBoard.prototype.addPoint = function (x, y) {
+FumiWhiteBoard.prototype.addPoint = function (x, y) {
     this.pointList.push(x);
     this.pointList.push(y);
     if (this.pointList.length == 2) {
@@ -90,7 +90,7 @@ BbWhiteBoard.prototype.addPoint = function (x, y) {
     this.drawLine();
 };
 
-BbWhiteBoard.prototype.drawLine = function () {
+FumiWhiteBoard.prototype.drawLine = function () {
     var last = this.pointList.length;
     var x1 = this.pointList[last - 4];
     var y1 = this.pointList[last - 3];
@@ -111,7 +111,7 @@ BbWhiteBoard.prototype.drawLine = function () {
 }
 
 
-BbWhiteBoard.prototype.deleteAll = function (arr) {
+FumiWhiteBoard.prototype.deleteAll = function (arr) {
     for (var i = 0; i < arr.length; i++) {
         arr[i].remove();
     }
@@ -119,7 +119,7 @@ BbWhiteBoard.prototype.deleteAll = function (arr) {
     this.layer_base.draw();
 }
 
-BbWhiteBoard.prototype.drawDoubleSpline = function () {
+FumiWhiteBoard.prototype.drawDoubleSpline = function () {
    var splineExt = new Kinetic.Line({
    		points: this.pointList,
         stroke: this.externalLineColor,
@@ -146,19 +146,19 @@ BbWhiteBoard.prototype.drawDoubleSpline = function () {
     this.splines.push(splineInt);
 };
 
-BbWhiteBoard.prototype.handleMouseDown = function (x, y, button) {
+FumiWhiteBoard.prototype.handleMouseDown = function (x, y, button) {
     this.drawMode = true;
     this.pointList = new Array();
     this.addPoint(x, y);
 }
 
-BbWhiteBoard.prototype.handleMouseMove = function (x, y) {
+FumiWhiteBoard.prototype.handleMouseMove = function (x, y) {
     if (this.drawMode) {
         this.addPoint(x, y);
     }
 }
 
-BbWhiteBoard.prototype.handleMouseUp = function (x, y) {
+FumiWhiteBoard.prototype.handleMouseUp = function (x, y) {
     if (this.drawMode == false) {
         return;
     }
@@ -167,17 +167,17 @@ BbWhiteBoard.prototype.handleMouseUp = function (x, y) {
     this.drawMode = false;
 };
 
-BbWhiteBoard.prototype.handleMouseEnter = function (x, y) {}
+FumiWhiteBoard.prototype.handleMouseEnter = function (x, y) {}
 
-BbWhiteBoard.prototype.handleMouseLeave = function (x, y) {
+FumiWhiteBoard.prototype.handleMouseLeave = function (x, y) {
     this.handleMouseUp(x, y);
 }
 
-BbWhiteBoard.prototype.handleDblClick = function (x, y) {
+FumiWhiteBoard.prototype.handleDblClick = function (x, y) {
     this.deleteAll(this.splines);
 }
 
-BbWhiteBoard.prototype.handleMessage = function (msgarr) {
+FumiWhiteBoard.prototype.handleMessage = function (msgarr) {
     var command = msgarr[2];
     var x = parseInt(msgarr[3], 10);
     var y = parseInt(msgarr[4], 10);
@@ -244,7 +244,7 @@ function broadcastCommunicator() {
         	return wb; 
         	};
 		// need to create white board object
-		wb = new BbWhiteBoard(id,rcvStyleIndex);
+		wb = new FumiWhiteBoard(id,rcvStyleIndex);
 		// register wb to white board table
 		_whiteBoardTable[id] = wb;
         return wb;
@@ -377,7 +377,7 @@ window.onload = function () {
 function cleanupCanvas (){
 	// create dummy mouse event
 	var evt = document.createEvent("MouseEvent");
-	// マウスイベントを初期化
+	// initialize mouse event
 	evt.initMouseEvent("myCustomEvent",false,false,document.defaultView,0,0,0,0,0,false,false,false,false,0,null);
 	sendMouseEvent('dblclick', evt);
 	console.log('Clear the canvas on unload.');

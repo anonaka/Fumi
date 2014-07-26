@@ -1,0 +1,25 @@
+body    {  
+   // background-color: green;
+    z-index:0;  
+}  
+
+#fumi_mouseevent_canvas {
+  	position: absolute;
+  	top: 0;
+  	left: 0;
+	//background-color: blue; 
+	z-index: 100;
+	width: 500;
+	height: 500;
+}
+
+.fumi_canvas{
+  	position: absolute;
+  	top: 0;
+  	left: 0;
+
+	background-color: yellow; 
+	z-index:1;
+	width: 500;
+	height: 500;
+}
