@@ -315,6 +315,7 @@ function getScreenSize() {
 
 function createMouseEventStage() {
     var screen = getScreenSize();
+    var draw_mode = false;
 
     mouseEventStage = new Kinetic.Stage({
         container: whiteBoardMouseCnvasId,
@@ -343,19 +344,22 @@ function createMouseEventStage() {
     }
 
     layer_mouse_event.on("mousemove touchmove", function (evt) {
-        sendMouseEvent('mousemove', evt);
+	    if (draw_mode) sendMouseEvent('mousemove', evt);
     });
 
     layer_mouse_event.on("mouseup touchend", function (evt) {
         sendMouseEvent('mouseup', evt);
+	draw_mode = false;
     });
 
     layer_mouse_event.on("mousedown touchstart", function (evt) {
-        sendMouseEvent('mousedown', evt);
+	sendMouseEvent('mousedown', evt);
+	draw_mode = true;
     });
 
     layer_mouse_event.on('mouseleave', function (evt) {
         sendMouseEvent('mouseleave', evt);
+	draw_mode = false;
     });
 
     layer_mouse_event.on('mouseenter', function (evt) {
@@ -364,6 +368,7 @@ function createMouseEventStage() {
 
     layer_mouse_event.on('dblclick dbltap', function (evt) {
         sendMouseEvent('dblclick', evt);
+	draw_mode = false;
     });
 
     layer_mouse_event.on('click tap', function (evt) {});
