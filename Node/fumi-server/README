@@ -3,6 +3,6 @@
 $ node --version
 v0.10.6
 
-//installed ws
+//installed npm modules
 $ npm install ws express log4js
 
