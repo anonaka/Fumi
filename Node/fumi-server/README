@@ -1,8 +1,5 @@
 //Development environment
 
-$ node --version
-v0.10.6
-
-//installed ws
+//installed node modules
 $ npm install ws express log4js
 
