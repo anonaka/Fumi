@@ -44,22 +44,33 @@ wss.on('connection', function (ws) {
     });
     //メッセージ送信時
     ws.on('message', function (message) {
-        logger.debug('message:', message);
+        logger.debug('rcv message:', message);
         var msgObj = JSON.parse(message);
         if (msgObj.type == 'login'){
+            // record user if in connection object
             conObj.loginInfo = msgObj;
-            conObj.userId = 1;
+            conObj.loginInfo.userId = getUserId();
+            //add server assigned uniq user id
+            msgObj.userId = conObj.loginInfo.userId;
         }
         broadcast(msgObj);
     });
 });
 
+var userId = 0;
+
+var getUserId = function(){
+    //TODO assign uniq user id
+    userId += 1;
+    return userId;
+}
+	
 //ブロードキャストを行う
 function broadcast(msgObj) {
     connections.forEach(function (con, i) {
         // add login info
         //TODO need optimization here
-        msgObj.name = con.loginInfo.name;
+        msgObj.userId = con.loginInfo.userId;
         con.ws.send(JSON.stringify(msgObj));
     });
 };

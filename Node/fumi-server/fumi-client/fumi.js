@@ -12,49 +12,80 @@ $(window).bind("resize", function(){
                console.log('window width:'+ w + ' height:' + h);
                });
 
-var gStyleTable = [{
-    canvasId : 'fumi_canvas01',
-    initColor : 'blue',
-    inColor : 'darkBlue',
-    extColor : 'lightBlue'
-	}, 
-	{
-    canvasId: 'fumi_canvas02',
-    initColor : 'green',
-    inColor : 'darkGreen',
-    extColor : 'lightGreen'
-	},
- 	{
-    canvasId: 'fumi_canvas03',
-    initColor: 'red',
-    inColor: 'darkRed',
-    extColor : 'lightPink'
-}];
+var fumiUsers = [];
 
+function FumiCanvasFactory(){
+    this.current = 0;
 
-function FumiWhiteBoard(id,rcvStyleIndex) {
-    this.wbUserId = id;
+    this.canvasPool = [
+        'fumi_canvas01',
+        'fumi_canvas02',
+        'fumi_canvas03',
+        'fumi_canvas04',
+        'fumi_canvas05',
+        'fumi_canvas06',
+        'fumi_canvas07',
+        'fumi_canvas08'
+    ];
+    this.getNextCanvas = function (){
+        if(this.canvasPool <= this.current)
+            this.current = 0;
+        this.current += 1;
+        return this.canvasPool[this.current - 1];
+    }
+}
+
+function FumiStyleFactory(){
+    this.stylePool = [
+        {
+        initColor : 'blue',
+        inColor : 'darkBlue',
+        extColor : 'lightBlue'
+        }, 
+        {
+        canvasId: 'fumi_canvas02',
+        initColor : 'green',
+        inColor : 'darkGreen',
+        extColor : 'lightGreen'
+        },
+        {
+        initColor: 'red',
+        inColor: 'darkRed',
+        extColor : 'lightPink'
+        }];
+ 
+    this.getFumiStyle = function(gender,age){
+        return this.stylePool[0];
+    }
+}
+
+function FumiWhiteBoard(fumiUser) {
+    this.fumiUser = fumiUser;
     this.drawMode = false;
     this.lines = new Array();
     this.splines = new Array();
     this.pointList = new Array;
-    this.setStyle(rcvStyleIndex);
+    this.setStyle();
+    // must get canvas before creating the stage
+    this.canvasId = fumiCanvasFactory.getNextCanvas();
     this.createDrawingStage();
+
 }
 
-FumiWhiteBoard.prototype.setStyle = function (rcvStyleIndex) {
+FumiWhiteBoard.prototype.setStyle = function () {
     this.initWidth = '5';
     this.splineTention = 0.3;
     this.extWidth = 30;
     this.ratio = 0.6;
     this.inWidth = this.extWidth * this.ratio;
     this.opacity = 0.5;
-
-	this.initColor = gStyleTable[rcvStyleIndex].initColor;	
-    this.internalLineColor = gStyleTable[rcvStyleIndex].inColor;
-    this.externalLineColor = gStyleTable[rcvStyleIndex].extColor;
     
-    this.canvasId = gStyleTable[rcvStyleIndex].canvasId;
+    //TODO this is ugry
+    var style = fumiStyleFactory.getFumiStyle(this.fumiUser.gender,this.age);
+    
+	this.initColor = style.initColor;	
+    this.internalLineColor = style.inColor;
+    this.externalLineColor = style.extColor;
 }
 
 FumiWhiteBoard.prototype.createDrawingStage = function () {
@@ -247,24 +278,19 @@ function broadcastCommunicator() {
         console.log('Connection closed.');
     }
 
-    function findWhiteboardObject(id,rcvStyleIndex) {
-        var wb = _whiteBoardTable[id];
-        if (wb != null) { 
-        	return wb; 
-        	};
-		// need to create white board object
-		wb = new FumiWhiteBoard(id,rcvStyleIndex);
-		// register wb to white board table
-		_whiteBoardTable[id] = wb;
-        return wb;
-    }
-
     function processReceivedMsg(msg) {
-        console.log('Rcvedmsg:' + msg);
+        //console.log('Rcvedmsg:' + msg);
         var msgObj = JSON.parse(msg);
-        var uid = 1;
-        var rcvStyleIndex = 1;
-        var wb = findWhiteboardObject(uid,rcvStyleIndex);
+        var uidString = String(msgObj.userId);
+
+        if (msgObj.type == 'login'){
+            msgObj.wb = new FumiWhiteBoard(msgObj);
+            // record in hash
+            fumiUsers[uidString] = msgObj;
+            return;
+        }
+        // dispatch 
+        var wb = fumiUsers[uidString].wb;
         wb.handleMessage(msgObj);
     }
 }
@@ -301,6 +327,7 @@ var sendMouseEvent = function (command, evt) {
 }
 
 var sendLogin = function(){
+    // send my login info
     var loginMsg = {
         type : "login",
         name : "akira",
@@ -393,7 +420,10 @@ function createMouseEventStage() {
 
 // global variable, so that event handler can see this variable
 var _bcsocket;
-var _whiteBoardTable = {};
+
+//TODO may need some consideration here
+var fumiCanvasFactory = new FumiCanvasFactory();
+var fumiStyleFactory = new FumiStyleFactory();
 
 // Global onload handler
 
