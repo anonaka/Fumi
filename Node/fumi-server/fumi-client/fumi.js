@@ -43,7 +43,6 @@ function FumiStyleFactory(){
         extColor : 'lightBlue'
         }, 
         {
-        canvasId: 'fumi_canvas02',
         initColor : 'green',
         inColor : 'darkGreen',
         extColor : 'lightGreen'
@@ -279,7 +278,7 @@ function broadcastCommunicator() {
     }
 
     function processReceivedMsg(msg) {
-        //console.log('Rcvedmsg:' + msg);
+        console.log('Rcvedmsg:' + msg);
         var msgObj = JSON.parse(msg);
         var uidString = String(msgObj.userId);
 

@@ -1,5 +1,5 @@
 //app.js
-var MAX_USER = 30;
+var MAX_USER = 8;
 var connection_count = 0;
 
 var log4js = require('log4js');
@@ -31,7 +31,10 @@ wss.on('connection', function (ws) {
     connection_count += 1;
     logger.info('New websocket connection from %s:%d (%d)', ws._socket.remoteAddress, ws._socket.remotePort,connection_count);
     //配列にWebSocket接続を保存
-    var conObj = {ws : ws};
+    var conObj = {
+        ws : ws,
+        fumiUserId :getUserId()
+    };
     
     connections.push(conObj);
     // 切断時
@@ -48,10 +51,7 @@ wss.on('connection', function (ws) {
         var msgObj = JSON.parse(message);
         if (msgObj.type == 'login'){
             // record user if in connection object
-            conObj.loginInfo = msgObj;
-            conObj.loginInfo.userId = getUserId();
-            //add server assigned uniq user id
-            msgObj.userId = conObj.loginInfo.userId;
+            conObj.fumiLoginInfo = msgObj;
         }
         broadcast(msgObj);
     });
@@ -62,6 +62,7 @@ var userId = 0;
 var getUserId = function(){
     //TODO assign uniq user id
     userId += 1;
+    logger.debug('issue userId:', userId);
     return userId;
 }
 	
@@ -70,8 +71,10 @@ function broadcast(msgObj) {
     connections.forEach(function (con, i) {
         // add login info
         //TODO need optimization here
-        msgObj.userId = con.loginInfo.userId;
-        con.ws.send(JSON.stringify(msgObj));
+        msgObj.userId = con.fumiUserId;
+        var str = JSON.stringify(msgObj);
+        logger.debug('send message:',str );
+        con.ws.send(str);
     });
 };
  
