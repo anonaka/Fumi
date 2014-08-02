@@ -47,7 +47,7 @@ wss.on('connection', function (ws) {
         logger.debug('message:', message);
         var msgObj = JSON.parse(message);
         if (msgObj.type == 'login'){
-            conObj.msgObj = msgObj;
+            conObj.loginInfo = msgObj;
             conObj.userId = 1;
         }
         broadcast(msgObj);
@@ -56,9 +56,11 @@ wss.on('connection', function (ws) {
 
 //ブロードキャストを行う
 function broadcast(msgObj) {
-    var jsonmsg = JSON.stringify(msgObj);
     connections.forEach(function (con, i) {
-        con.ws.send(jsonmsg);
+        // add login info
+        //TODO need optimization here
+        msgObj.name = con.loginInfo.name;
+        con.ws.send(JSON.stringify(msgObj));
     });
 };
  

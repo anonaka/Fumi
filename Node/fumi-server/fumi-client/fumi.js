@@ -225,6 +225,8 @@ function broadcastCommunicator() {
 
     // When the connection is open, send login data to the server
     _bcsocket.onopen = function () {
+        //TODO 8/2/2014 anonaka,seem like need some delay here
+        // sometimes socket is not ready
         sendLogin();
     };
 
@@ -258,6 +260,7 @@ function broadcastCommunicator() {
     }
 
     function processReceivedMsg(msg) {
+        console.log('Rcvedmsg:' + msg);
         var msgObj = JSON.parse(msg);
         var uid = 1;
         var rcvStyleIndex = 1;
