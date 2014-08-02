@@ -31,27 +31,34 @@ wss.on('connection', function (ws) {
     connection_count += 1;
     logger.info('New websocket connection from %s:%d (%d)', ws._socket.remoteAddress, ws._socket.remotePort,connection_count);
     //配列にWebSocket接続を保存
-    connections.push(ws);
-    //切断時
+    var conObj = {ws : ws};
+    
+    connections.push(conObj);
+    // 切断時
     ws.on('close', function () {
         connection_count -=1;
         logger.info('Disconnected %s:%d (%d)', ws._socket.remoteAddress, ws._socket.remotePort,connection_count);
         connections = connections.filter(function (conn, i) {
-            return (conn === ws) ? false : true;
+            return (conn.ws === ws) ? false : true;
         });
     });
     //メッセージ送信時
     ws.on('message', function (message) {
         logger.debug('message:', message);
-        //broadcast(JSON.stringify(message));
-        broadcast(message);
+        var msgObj = JSON.parse(message);
+        if (msgObj.type == 'login'){
+            conObj.msgObj = msgObj;
+            conObj.userId = 1;
+        }
+        broadcast(msgObj);
     });
 });
 
 //ブロードキャストを行う
-function broadcast(message) {
+function broadcast(msgObj) {
+    var jsonmsg = JSON.stringify(msgObj);
     connections.forEach(function (con, i) {
-        con.send(message);
+        con.ws.send(jsonmsg);
     });
 };
  

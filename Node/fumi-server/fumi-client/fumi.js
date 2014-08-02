@@ -203,7 +203,7 @@ FumiWhiteBoard.prototype.handleMessage = function (msgObj) {
         this.handleDblClick(x, y);
         break;
     default:
-        console.log('unknown message');
+        console.log('unknown message:' + command);
         break;
     }
 }
@@ -258,7 +258,7 @@ function broadcastCommunicator() {
     }
 
     function processReceivedMsg(msg) {
-        var msgObj = JSON.parse(msg)
+        var msgObj = JSON.parse(msg);
         var uid = 1;
         var rcvStyleIndex = 1;
         var wb = findWhiteboardObject(uid,rcvStyleIndex);
