@@ -175,12 +175,12 @@ FumiWhiteBoard.prototype.handleDblClick = function (x, y) {
     this.deleteAll(this.splines);
 }
 
-FumiWhiteBoard.prototype.handleMessage = function (msgarr) {
-    var command = msgarr[2];
-    var x = parseInt(msgarr[3], 10);
-    var y = parseInt(msgarr[4], 10);
-    var button = msgarr[5];
-    var buttons = msgarr[6];
+FumiWhiteBoard.prototype.handleMessage = function (msgObj) {
+    var command = msgObj.type;
+    var x = msgObj.x;
+    var y = msgObj.y;
+    var button = msgObj.button;
+    var buttons = msgObj.buttons;
     
 	//console.log('handle commnad:' + command　+ ':' + x + ':' + y );
     switch (command) {
@@ -223,8 +223,10 @@ function broadcastCommunicator() {
     // assign socket to the global variable
 	_bcsocket = new WebSocket(url);
 
-    // When the connection is open, send some data to the server
-    _bcsocket.onopen = function () {};
+    // When the connection is open, send login data to the server
+    _bcsocket.onopen = function () {
+        sendLogin();
+    };
 
     // Log errors
     _bcsocket.onerror = function (error) {
@@ -255,17 +257,12 @@ function broadcastCommunicator() {
         return wb;
     }
 
-    function decodeMessages(msg) {
-        var arr = msg.split(':');
-        return arr;
-    }
-
     function processReceivedMsg(msg) {
-        var msgarr = decodeMessages(msg)
-        var uid = msgarr[0]; // text
-        var rcvStyleIndex = parseInt(msgarr[1],10);		
+        var msgObj = JSON.parse(msg)
+        var uid = 1;
+        var rcvStyleIndex = 1;
         var wb = findWhiteboardObject(uid,rcvStyleIndex);
-        wb.handleMessage(msgarr);
+        wb.handleMessage(msgObj);
     }
 }
 
@@ -289,14 +286,30 @@ var sendMouseEvent = function (command, evt) {
 	}	
 	
 	// compose message
-	var msg = userId + ':' +
-		styleIndex + ':' +
-		command + ':' +
-		x + ':' + y + ':' +
-		evt.button + ':' + 
-		evt.buttons + ':';
-	_bcsocket.send(msg);
+	var msg = {
+		type : command,
+		x : x,
+        y : y,
+        button : evt.button,
+		buttons : evt.buttons
+    };
+	sendToFumiServer(msg);
 	//console.log('Send:' + msg);
+}
+
+var sendLogin = function(){
+    var loginMsg = {
+        type : "login",
+        name : "akira",
+        age : 56,
+        gender : "m"
+    };
+    sendToFumiServer(loginMsg);
+}
+
+// send msg to Fumi server in JSON format
+var sendToFumiServer = function(msg){
+    _bcsocket.send(JSON.stringify(msg));
 }
 
 // These values must be set by the portal sever

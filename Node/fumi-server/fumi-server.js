@@ -1,9 +1,11 @@
 //app.js
-var  MAX_USER = 30;
+var MAX_USER = 30;
 var connection_count = 0;
+
 var log4js = require('log4js');
 var logger = log4js.getLogger();
-logger.setLevel('INFO');
+//logger.setLevel('INFO');
+logger.setLevel('DEBUG');
 logger.info("Fumi server has started");
 
 var WebSocketServer = require('ws').Server
@@ -32,19 +34,20 @@ wss.on('connection', function (ws) {
     connections.push(ws);
     //切断時
     ws.on('close', function () {
-	connection_count -=1;
-	logger.info('Disconnected %s:%d (%d)', ws._socket.remoteAddress, ws._socket.remotePort,connection_count);
+        connection_count -=1;
+        logger.info('Disconnected %s:%d (%d)', ws._socket.remoteAddress, ws._socket.remotePort,connection_count);
         connections = connections.filter(function (conn, i) {
             return (conn === ws) ? false : true;
         });
     });
     //メッセージ送信時
     ws.on('message', function (message) {
-        //logger.debug('message:', message);
-        broadcast(JSON.stringify(message));
+        logger.debug('message:', message);
+        //broadcast(JSON.stringify(message));
+        broadcast(message);
     });
 });
- 
+
 //ブロードキャストを行う
 function broadcast(message) {
     connections.forEach(function (con, i) {
