@@ -15,23 +15,43 @@ $(window).bind("resize", function(){
 var fumiUsers = [];
 
 function FumiCanvasFactory(){
-    this.current = 0;
-
     this.canvasPool = [
-        'fumi_canvas01',
-        'fumi_canvas02',
-        'fumi_canvas03',
-        'fumi_canvas04',
-        'fumi_canvas05',
-        'fumi_canvas06',
-        'fumi_canvas07',
-        'fumi_canvas08'
+        {id:'fumi_canvas00',used: false},
+        {id:'fumi_canvas01',used: false},
+        {id:'fumi_canvas02',used: false},
+        {id:'fumi_canvas03',used: false},
+        {id:'fumi_canvas04',used: false},
+        {id:'fumi_canvas05',used: false},
+        {id:'fumi_canvas06',used: false},
+        {id:'fumi_canvas07',used: false},
+        {id:'fumi_canvas08',used: false},
+        {id:'fumi_canvas09',used: false}
     ];
-    this.getNextCanvas = function (){
-        if(this.canvasPool <= this.current)
-            this.current = 0;
-        this.current += 1;
-        return this.canvasPool[this.current - 1];
+    this.getNextAvailableCanvas = function (){
+        for(var i = 0; i < this.canvasPool.length;i++) {
+            if (this.canvasPool[i].used == false){
+                this.canvasPool[i].used = true;
+                console.log('canvas assigned:'+this.canvasPool[i].id);
+                return this.canvasPool[i].id;
+            }
+        }
+        // All canvas is in use
+        console.log('no canvas available');
+        return false;
+    }
+    
+    this.returnCanvas = function(id){
+        for(var i = 0; i < this.canvasPool.lengh;i++){
+            if (this.canvasPool[i].id == id){
+                this.canvasPool[i].used = false;
+                return true;
+            }
+        }
+        console.log('cannto return canvas. id does not match!');
+        return false;
+    }
+    this.getMaxCanvasCount = function(){
+        return this.canvasPool.lengh;
     }
 }
 
@@ -66,7 +86,6 @@ function FumiUser(msgObj) {
     this.fumiWB = new FumiWhiteBoard(this);
 }
 
-
 function FumiWhiteBoard(fumiUser) {
     this.fumiUser = fumiUser;
     this.drawMode = false;
@@ -75,9 +94,8 @@ function FumiWhiteBoard(fumiUser) {
     this.pointList = new Array;
     this.setStyle();
     // must get canvas before creating the stage
-    this.canvasId = fumiCanvasFactory.getNextCanvas();
+    this.canvasId = fumiCanvasFactory.getNextAvailableCanvas();
     this.createDrawingStage();
-
 }
 
 FumiWhiteBoard.prototype.setStyle = function () {
@@ -287,7 +305,7 @@ function broadcastCommunicator() {
     }
 
     function processReceivedMsg(msg) {
-        console.log('Rcvedmsg:' + msg);
+        //console.log('Rcvedmsg:' + msg);
         var msgObj = JSON.parse(msg);
         switch (msgObj.type){
             case 'login':
@@ -298,6 +316,9 @@ function broadcastCommunicator() {
             case 'clsoe':
                 //TODO handle ws close here
                 return;
+            default:
+                //console.log('canvas events!');
+                break;
         }
         // dispatch canvas evnets to Fumi WhiteBoard
         dispatchCanvasEvents(msgObj);
@@ -307,8 +328,10 @@ function broadcastCommunicator() {
         // find fumi user from user id
         for(var i = 0; i < fumiUsers.length; i++){
             if (fumiUsers[i].fumiUserId == msgObj.fumiUserId) {
-                var wb = fumiUsers[0].fumiWB;
+                var wb = fumiUsers[i].fumiWB;
+                console.log('dispatch:'+ msgObj.fumiUserId + '->' + wb.canvasId);
                 wb.handleMessage(msgObj);
+                return;
             }
         }
         console.log("Fumi user not found!!!");
