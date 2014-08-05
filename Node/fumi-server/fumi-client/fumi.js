@@ -329,12 +329,16 @@ function broadcastCommunicator() {
         for(var i = 0; i < fumiUsers.length; i++){
             if (fumiUsers[i].fumiUserId == msgObj.fumiUserId) {
                 var wb = fumiUsers[i].fumiWB;
-                console.log('dispatch:'+ msgObj.fumiUserId + '->' + wb.canvasId);
+                //console.log('dispatch:'+ msgObj.fumiUserId + '->' + wb.canvasId);
                 wb.handleMessage(msgObj);
                 return;
             }
         }
-        console.log("Fumi user not found!!!");
+        //TODO need clean up!
+        var user = new FumiUser(msgObj);
+        // record in hash
+        fumiUsers.push(user);
+        user.wb.handleMessage(msgObj);       
     }
 }
 
