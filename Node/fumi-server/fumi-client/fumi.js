@@ -58,6 +58,15 @@ function FumiStyleFactory(){
     }
 }
 
+function FumiUser(msgObj) {
+    this.fumiUserId = msgObj.fumiUserId;
+    this.name = msgObj.name;
+    this.age = msgObj.age;
+    this.gender = msgObj.gender;
+    this.fumiWB = new FumiWhiteBoard(this);
+}
+
+
 function FumiWhiteBoard(fumiUser) {
     this.fumiUser = fumiUser;
     this.drawMode = false;
@@ -280,17 +289,29 @@ function broadcastCommunicator() {
     function processReceivedMsg(msg) {
         console.log('Rcvedmsg:' + msg);
         var msgObj = JSON.parse(msg);
-        var uidString = String(msgObj.userId);
-
-        if (msgObj.type == 'login'){
-            msgObj.wb = new FumiWhiteBoard(msgObj);
-            // record in hash
-            fumiUsers[uidString] = msgObj;
-            return;
+        switch (msgObj.type){
+            case 'login':
+                var user = new FumiUser(msgObj);
+                // record in hash
+                fumiUsers.push(user);
+                return;
+            case 'clsoe':
+                //TODO handle ws close here
+                return;
         }
-        // dispatch 
-        var wb = fumiUsers[uidString].wb;
-        wb.handleMessage(msgObj);
+        // dispatch canvas evnets to Fumi WhiteBoard
+        dispatchCanvasEvents(msgObj);
+    }
+    
+    function dispatchCanvasEvents(msgObj){
+        // find fumi user from user id
+        for(var i = 0; i < fumiUsers.length; i++){
+            if (fumiUsers[i].fumiUserId == msgObj.fumiUserId) {
+                var wb = fumiUsers[0].fumiWB;
+                wb.handleMessage(msgObj);
+            }
+        }
+        console.log("Fumi user not found!!!");
     }
 }
 
