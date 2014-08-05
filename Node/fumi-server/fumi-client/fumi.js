@@ -41,9 +41,10 @@ function FumiCanvasFactory(){
     }
     
     this.returnCanvas = function(id){
-        for(var i = 0; i < this.canvasPool.lengh;i++){
+        for(var i = 0; i < this.canvasPool.length;i++){
             if (this.canvasPool[i].id == id){
                 this.canvasPool[i].used = false;
+                console.log('canvas freeied');
                 return true;
             }
         }
@@ -73,8 +74,10 @@ function FumiStyleFactory(){
         extColor : 'lightPink'
         }];
  
-    this.getFumiStyle = function(gender,age){
-        return this.stylePool[0];
+    this.getFumiStyle = function(gender,age,uid){
+        //TODO need imprvemet, this is quick hack
+        var i = uid % this.stylePool.length;
+        return this.stylePool[i];
     }
 }
 
@@ -85,6 +88,11 @@ function FumiUser(msgObj) {
     this.gender = msgObj.gender;
     this.fumiWB = new FumiWhiteBoard(this);
 }
+
+FumiUser.prototype.dealloc = function(){
+    this.fumiWB.dealloc();
+}
+
 
 function FumiWhiteBoard(fumiUser) {
     this.fumiUser = fumiUser;
@@ -98,6 +106,10 @@ function FumiWhiteBoard(fumiUser) {
     this.createDrawingStage();
 }
 
+FumiWhiteBoard.prototype.dealloc = function () {
+    fumiCanvasFactory.returnCanvas(this.canvasId);
+}
+
 FumiWhiteBoard.prototype.setStyle = function () {
     this.initWidth = '5';
     this.splineTention = 0.3;
@@ -107,7 +119,11 @@ FumiWhiteBoard.prototype.setStyle = function () {
     this.opacity = 0.5;
     
     //TODO this is ugry
-    var style = fumiStyleFactory.getFumiStyle(this.fumiUser.gender,this.age);
+    var style = fumiStyleFactory.getFumiStyle(
+        this.fumiUser.gender,
+        this.age,
+        this.fumiUser.fumiUserId
+    );
     
 	this.initColor = style.initColor;	
     this.internalLineColor = style.inColor;
@@ -313,8 +329,15 @@ function broadcastCommunicator() {
                 // record in hash
                 fumiUsers.push(user);
                 return;
-            case 'clsoe':
+            case 'close':
                 //TODO handle ws close here
+                // dealloc Fumi user
+                var user = findFumiUserByMsgObj(msgObj);
+                user.dealloc();
+                // remove from the array
+                fumiUsers = fumiUsers.filter(function (u, i) {
+                    return (user === u) ? false : true;
+                });
                 return;
             default:
                 //console.log('canvas events!');
@@ -322,6 +345,15 @@ function broadcastCommunicator() {
         }
         // dispatch canvas evnets to Fumi WhiteBoard
         dispatchCanvasEvents(msgObj);
+    }
+    
+    function findFumiUserByMsgObj(msgObj){
+        for(var i = 0; i < fumiUsers.length; i++){
+            if (fumiUsers[i].fumiUserId == msgObj.fumiUserId){
+                return fumiUsers[i];
+            }
+        }
+        return null;
     }
     
     function dispatchCanvasEvents(msgObj){
