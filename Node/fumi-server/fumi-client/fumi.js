@@ -12,49 +12,122 @@ $(window).bind("resize", function(){
                console.log('window width:'+ w + ' height:' + h);
                });
 
-var gStyleTable = [{
-    canvasId : 'fumi_canvas01',
-    initColor : 'blue',
-    inColor : 'darkBlue',
-    extColor : 'lightBlue'
-	}, 
-	{
-    canvasId: 'fumi_canvas02',
-    initColor : 'green',
-    inColor : 'darkGreen',
-    extColor : 'lightGreen'
-	},
- 	{
-    canvasId: 'fumi_canvas03',
-    initColor: 'red',
-    inColor: 'darkRed',
-    extColor : 'lightPink'
-}];
+var fumiUsers = [];
+
+function FumiCanvasFactory(){
+    this.canvasPool = [
+        {id:'fumi_canvas00',used: false},
+        {id:'fumi_canvas01',used: false},
+        {id:'fumi_canvas02',used: false},
+        {id:'fumi_canvas03',used: false},
+        {id:'fumi_canvas04',used: false},
+        {id:'fumi_canvas05',used: false},
+        {id:'fumi_canvas06',used: false},
+        {id:'fumi_canvas07',used: false},
+        {id:'fumi_canvas08',used: false},
+        {id:'fumi_canvas09',used: false}
+    ];
+    this.getNextAvailableCanvas = function (){
+        for(var i = 0; i < this.canvasPool.length;i++) {
+            if (this.canvasPool[i].used == false){
+                this.canvasPool[i].used = true;
+                console.log('canvas assigned:'+this.canvasPool[i].id);
+                return this.canvasPool[i].id;
+            }
+        }
+        // All canvas is in use
+        console.log('no canvas available');
+        return false;
+    }
+    
+    this.returnCanvas = function(id){
+        for(var i = 0; i < this.canvasPool.length;i++){
+            if (this.canvasPool[i].id == id){
+                this.canvasPool[i].used = false;
+                console.log('canvas freeied');
+                return true;
+            }
+        }
+        console.log('cannto return canvas. id does not match!');
+        return false;
+    }
+    this.getMaxCanvasCount = function(){
+        return this.canvasPool.lengh;
+    }
+}
+
+function FumiStyleFactory(){
+    this.stylePool = [
+        {
+        initColor : 'blue',
+        inColor : 'darkBlue',
+        extColor : 'lightBlue'
+        }, 
+        {
+        initColor : 'green',
+        inColor : 'darkGreen',
+        extColor : 'lightGreen'
+        },
+        {
+        initColor: 'red',
+        inColor: 'darkRed',
+        extColor : 'lightPink'
+        }];
+ 
+    this.getFumiStyle = function(gender,age,uid){
+        //TODO need imprvemet, this is quick hack
+        var i = uid % this.stylePool.length;
+        return this.stylePool[i];
+    }
+}
+
+function FumiUser(msgObj) {
+    this.fumiUserId = msgObj.fumiUserId;
+    this.name = msgObj.name;
+    this.age = msgObj.age;
+    this.gender = msgObj.gender;
+    this.fumiWB = new FumiWhiteBoard(this);
+}
+
+FumiUser.prototype.dealloc = function(){
+    this.fumiWB.dealloc();
+}
 
 
-function FumiWhiteBoard(id,rcvStyleIndex) {
-    this.wbUserId = id;
+function FumiWhiteBoard(fumiUser) {
+    this.fumiUser = fumiUser;
     this.drawMode = false;
     this.lines = new Array();
     this.splines = new Array();
     this.pointList = new Array;
-    this.setStyle(rcvStyleIndex);
+    this.setStyle();
+    // must get canvas before creating the stage
+    this.canvasId = fumiCanvasFactory.getNextAvailableCanvas();
     this.createDrawingStage();
 }
 
-FumiWhiteBoard.prototype.setStyle = function (rcvStyleIndex) {
+FumiWhiteBoard.prototype.dealloc = function () {
+    fumiCanvasFactory.returnCanvas(this.canvasId);
+}
+
+FumiWhiteBoard.prototype.setStyle = function () {
     this.initWidth = '5';
     this.splineTention = 0.3;
     this.extWidth = 30;
     this.ratio = 0.6;
     this.inWidth = this.extWidth * this.ratio;
     this.opacity = 0.5;
-
-	this.initColor = gStyleTable[rcvStyleIndex].initColor;	
-    this.internalLineColor = gStyleTable[rcvStyleIndex].inColor;
-    this.externalLineColor = gStyleTable[rcvStyleIndex].extColor;
     
-    this.canvasId = gStyleTable[rcvStyleIndex].canvasId;
+    //TODO this is ugry
+    var style = fumiStyleFactory.getFumiStyle(
+        this.fumiUser.gender,
+        this.age,
+        this.fumiUser.fumiUserId
+    );
+    
+	this.initColor = style.initColor;	
+    this.internalLineColor = style.inColor;
+    this.externalLineColor = style.extColor;
 }
 
 FumiWhiteBoard.prototype.createDrawingStage = function () {
@@ -175,12 +248,12 @@ FumiWhiteBoard.prototype.handleDblClick = function (x, y) {
     this.deleteAll(this.splines);
 }
 
-FumiWhiteBoard.prototype.handleMessage = function (msgarr) {
-    var command = msgarr[2];
-    var x = parseInt(msgarr[3], 10);
-    var y = parseInt(msgarr[4], 10);
-    var button = msgarr[5];
-    var buttons = msgarr[6];
+FumiWhiteBoard.prototype.handleMessage = function (msgObj) {
+    var command = msgObj.type;
+    var x = msgObj.x;
+    var y = msgObj.y;
+    var button = msgObj.button;
+    var buttons = msgObj.buttons;
     
 	//console.log('handle commnad:' + command　+ ':' + x + ':' + y );
     switch (command) {
@@ -203,7 +276,7 @@ FumiWhiteBoard.prototype.handleMessage = function (msgarr) {
         this.handleDblClick(x, y);
         break;
     default:
-        console.log('unknown message');
+        console.log('unknown message:' + command);
         break;
     }
 }
@@ -223,8 +296,12 @@ function broadcastCommunicator() {
     // assign socket to the global variable
 	_bcsocket = new WebSocket(url);
 
-    // When the connection is open, send some data to the server
-    _bcsocket.onopen = function () {};
+    // When the connection is open, send login data to the server
+    _bcsocket.onopen = function () {
+        //TODO 8/2/2014 anonaka,seem like need some delay here
+        // sometimes socket is not ready
+        sendLogin();
+    };
 
     // Log errors
     _bcsocket.onerror = function (error) {
@@ -243,29 +320,57 @@ function broadcastCommunicator() {
         console.log('Connection closed.');
     }
 
-    function findWhiteboardObject(id,rcvStyleIndex) {
-        var wb = _whiteBoardTable[id];
-        if (wb != null) { 
-        	return wb; 
-        	};
-		// need to create white board object
-		wb = new FumiWhiteBoard(id,rcvStyleIndex);
-		// register wb to white board table
-		_whiteBoardTable[id] = wb;
-        return wb;
-    }
-
-    function decodeMessages(msg) {
-        var arr = msg.split(':');
-        return arr;
-    }
-
     function processReceivedMsg(msg) {
-        var msgarr = decodeMessages(msg)
-        var uid = msgarr[0]; // text
-        var rcvStyleIndex = parseInt(msgarr[1],10);		
-        var wb = findWhiteboardObject(uid,rcvStyleIndex);
-        wb.handleMessage(msgarr);
+        //console.log('Rcvedmsg:' + msg);
+        var msgObj = JSON.parse(msg);
+        switch (msgObj.type){
+            case 'login':
+                var user = new FumiUser(msgObj);
+                // record in hash
+                fumiUsers.push(user);
+                return;
+            case 'close':
+                //TODO handle ws close here
+                // dealloc Fumi user
+                var user = findFumiUserByMsgObj(msgObj);
+                user.dealloc();
+                // remove from the array
+                fumiUsers = fumiUsers.filter(function (u, i) {
+                    return (user === u) ? false : true;
+                });
+                return;
+            default:
+                //console.log('canvas events!');
+                break;
+        }
+        // dispatch canvas evnets to Fumi WhiteBoard
+        dispatchCanvasEvents(msgObj);
+    }
+    
+    function findFumiUserByMsgObj(msgObj){
+        for(var i = 0; i < fumiUsers.length; i++){
+            if (fumiUsers[i].fumiUserId == msgObj.fumiUserId){
+                return fumiUsers[i];
+            }
+        }
+        return null;
+    }
+    
+    function dispatchCanvasEvents(msgObj){
+        // find fumi user from user id
+        for(var i = 0; i < fumiUsers.length; i++){
+            if (fumiUsers[i].fumiUserId == msgObj.fumiUserId) {
+                var wb = fumiUsers[i].fumiWB;
+                //console.log('dispatch:'+ msgObj.fumiUserId + '->' + wb.canvasId);
+                wb.handleMessage(msgObj);
+                return;
+            }
+        }
+        //TODO need clean up!
+        var user = new FumiUser(msgObj);
+        // record in hash
+        fumiUsers.push(user);
+        user.wb.handleMessage(msgObj);       
     }
 }
 
@@ -289,14 +394,31 @@ var sendMouseEvent = function (command, evt) {
 	}	
 	
 	// compose message
-	var msg = userId + ':' +
-		styleIndex + ':' +
-		command + ':' +
-		x + ':' + y + ':' +
-		evt.button + ':' + 
-		evt.buttons + ':';
-	_bcsocket.send(msg);
+	var msg = {
+		type : command,
+		x : x,
+        y : y,
+        button : evt.button,
+		buttons : evt.buttons
+    };
+	sendToFumiServer(msg);
 	//console.log('Send:' + msg);
+}
+
+var sendLogin = function(){
+    // send my login info
+    var loginMsg = {
+        type : "login",
+        name : "akira",
+        age : 56,
+        gender : "m"
+    };
+    sendToFumiServer(loginMsg);
+}
+
+// send msg to Fumi server in JSON format
+var sendToFumiServer = function(msg){
+    _bcsocket.send(JSON.stringify(msg));
 }
 
 // These values must be set by the portal sever
@@ -377,7 +499,10 @@ function createMouseEventStage() {
 
 // global variable, so that event handler can see this variable
 var _bcsocket;
-var _whiteBoardTable = {};
+
+//TODO may need some consideration here
+var fumiCanvasFactory = new FumiCanvasFactory();
+var fumiStyleFactory = new FumiStyleFactory();
 
 // Global onload handler
 
