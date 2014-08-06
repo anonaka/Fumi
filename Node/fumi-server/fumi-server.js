@@ -1,4 +1,4 @@
-//app.js
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-v3-or-Later
 var MAX_USER = 8;
 var connection_count = 0;
 
@@ -82,3 +82,4 @@ function broadcast(msgObj) {
 };
  
 server.listen(3000);
+// @license-end
