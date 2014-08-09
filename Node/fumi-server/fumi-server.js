@@ -4,8 +4,8 @@ var connection_count = 0;
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
-//logger.setLevel('INFO');
-logger.setLevel('DEBUG');
+logger.setLevel('INFO');
+//logger.setLevel('DEBUG');
 logger.info("Fumi server has started");
 
 var WebSocketServer = require('ws').Server
