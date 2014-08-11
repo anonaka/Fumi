@@ -33,6 +33,7 @@ wss.on('connection', function (ws) {
     //配列にWebSocket接続を保存
     ws.fumiUserId = getUserId();
 
+
     connections.push(ws);
     // 切断時
     ws.on('close', function () {
@@ -59,6 +60,7 @@ wss.on('connection', function (ws) {
         }
         // put originator user id on broadcast message
         msgObj.fumiUserId = ws.fumiUserId;
+        msgObj.clientIp = ws._socket.remoteAddress;
         broadcast(msgObj);
     });
 });

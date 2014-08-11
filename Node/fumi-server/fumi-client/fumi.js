@@ -329,6 +329,7 @@ function broadcastCommunicator() {
                 var user = new FumiUser(msgObj);
                 // record in hash
                 fumiUsers.push(user);
+                fumi_message('login:'+msgObj.clientIp);
                 return;
             case 'close':
                 //TODO handle ws close here
@@ -523,6 +524,12 @@ function cleanupCanvas (){
 	evt.initMouseEvent("myCustomEvent",false,false,document.defaultView,0,0,0,0,0,false,false,false,false,0,null);
 	sendMouseEvent('dblclick', evt);
 	console.log('Clear the canvas on unload.');
+}
+
+function fumi_message(msg){
+    $(document).ready(function(){
+	    $('#fumi_log').append(msg + '<br>');
+	});
 }
 
 window.onunload = cleanupCanvas;

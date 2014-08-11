@@ -23,3 +23,7 @@ body    {
 	//width: 500;
 	//height: 500;
 }
+
+#fumi_log{
+	z-index: 200;
+}
