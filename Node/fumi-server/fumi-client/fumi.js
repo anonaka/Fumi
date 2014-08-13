@@ -70,6 +70,11 @@ function FumiStyleFactory(){
         extColor : 'lightGreen'
         },
         {
+        initColor : 'gray',
+        inColor : 'darkGray',
+        extColor : 'lightGray'
+        },
+        {
         initColor: 'red',
         inColor: 'darkRed',
         extColor : 'lightPink'
