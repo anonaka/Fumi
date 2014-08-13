@@ -12,12 +12,21 @@
   ga('send', 'pageview');
   //ga(‘set’, ‘&uid’, {{USER_ID}});
 </script>
+<div id="fb-root"></div>
+
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.0";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 
 </head>
 <body>
 <center>
 <div id="server_message">
-<h1>Welcome to FUMI</h1>
+<h1>Welcome to Fumi</h1>
 <br>
 Fumiへようこそ！ Fumiは手描きのコミニュケーションツールです。
 指やマウスで自由に文字や絵を書いて下さい.
@@ -27,7 +36,10 @@ Fumiへようこそ！ Fumiは手描きのコミニュケーションツール�
 <br>
 iPhoneの方は横長の状態にしてご使用ください.
 (iPhone users, please reload with portrait mode)
-<br>
+<p>
+<div class="fb-like" data-href="http://truelogic.biz:3000" data-layout="standard" data-action="like" data-show-faces="true" data-share="true">
+</div>
+
 <a href="fumi01.html">
 <h1>Fumiに入る</h1>
 </a>
