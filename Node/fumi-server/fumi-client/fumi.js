@@ -341,6 +341,8 @@ function broadcastCommunicator() {
                 // dealloc Fumi user
                 var user = findFumiUserByMsgObj(msgObj);
                 user.dealloc();
+                // show logout msg
+                fumi_message('logout:'+msgObj.clientIp);
                 // remove from the array
                 fumiUsers = fumiUsers.filter(function (u, i) {
                     return (user === u) ? false : true;

@@ -30,21 +30,27 @@ wss.on('connection', function (ws) {
     }
     connection_count += 1;
     logger.info('New websocket connection from %s:%d (%d)', ws._socket.remoteAddress, ws._socket.remotePort,connection_count);
-    //配列にWebSocket接続を保存
+    
+    ws.socketCache = {
+        remoteAddress : ws._socket.remoteAddress,
+        remotePort : ws._socket.remotePort
+    }
     ws.fumiUserId = getUserId();
 
-
+    //配列にWebSocket接続を保存
     connections.push(ws);
     // 切断時
     ws.on('close', function () {
         connection_count -=1;
-        logger.info('Disconnected %s:%d (%d)', ws._socket.remoteAddress, ws._socket.remotePort,connection_count);
+        logger.info('Disconnected %s:%d (%d)', ws.socketCache.remoteAddress, ws.socketCache.remotePort,connection_count);
         connections = connections.filter(function (conn, i) {
             return (conn === ws) ? false : true;
         });
         // broadcast close message
         var msgObj = {
             type : 'close',
+            clientIp : ws.socketCache.remoteAddress,
+            clientPort : ws.socketCache.remoteAddress,
             fumiUserId : ws.fumiUserId
         }
         broadcast(msgObj);
@@ -60,7 +66,8 @@ wss.on('connection', function (ws) {
         }
         // put originator user id on broadcast message
         msgObj.fumiUserId = ws.fumiUserId;
-        msgObj.clientIp = ws._socket.remoteAddress;
+        msgObj.clientIp = ws.socketCache.remoteAddress;
+        msgObj.clientPort = ws.socketCache.remoteAddress;
         broadcast(msgObj);
     });
 });
