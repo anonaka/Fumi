@@ -29,7 +29,7 @@ wss.on('connection', function (ws) {
         return;
     }
     connection_count += 1;
-    logger.info('New websocket connection from %s:%d (%d)', ws._socket.remoteAddress, ws._socket.remotePort,connection_count);
+    logger.info('Connected    %s:%d (%d)', ws._socket.remoteAddress, ws._socket.remotePort,connection_count);
     
     ws.socketCache = {
         remoteAddress : ws._socket.remoteAddress,
