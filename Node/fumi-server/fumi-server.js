@@ -1,5 +1,5 @@
 // @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-v3-or-Later
-var MAX_USER = 8;
+var MAX_USER = 2;
 var connection_count = 0;
 
 var log4js = require('log4js');
@@ -20,11 +20,12 @@ var wss = new WebSocketServer({server:server});
  
 //Websocket接続を保存しておく
 var connections = [];
+var ERR_MAX_CONNECTION = 4000;
  
 //接続時
 wss.on('connection', function (ws) {
     if (MAX_USER <= connection_count) {
-        ws.close();
+        ws.close(ERR_MAX_CONNECTION,"Max Connection");
         logger.info('Connection rejected. Room is full.');
         return;
     }
