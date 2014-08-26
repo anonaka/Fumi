@@ -324,6 +324,7 @@ function broadcastCommunicator() {
     _bcsocket.onclose = function (e) {
     	cleanupCanvas();
         console.log('Connection closed.');
+        window.location.href ='fumi-err-max-connection.html';
     }
 
     function processReceivedMsg(msg) {

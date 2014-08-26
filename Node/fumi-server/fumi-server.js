@@ -20,11 +20,12 @@ var wss = new WebSocketServer({server:server});
  
 //Websocket接続を保存しておく
 var connections = [];
+var ERR_MAX_CONNECTION = 4000;
  
 //接続時
 wss.on('connection', function (ws) {
     if (MAX_USER <= connection_count) {
-        ws.close();
+        ws.close(ERR_MAX_CONNECTION,"Max Connection");
         logger.info('Connection rejected. Room is full.');
         return;
     }
