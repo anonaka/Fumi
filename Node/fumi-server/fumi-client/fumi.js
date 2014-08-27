@@ -540,5 +540,8 @@ function fumi_message(msg){
 	});
 }
 
-window.onunload = cleanupCanvas;
+window.onunload = function () {
+	cleanupCanvas();
+	_bcsocket.close();
+}
 // @license-end
