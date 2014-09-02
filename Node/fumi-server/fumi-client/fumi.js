@@ -535,9 +535,11 @@ function cleanupCanvas (){
 }
 
 function fumi_message(msg){
-    $(document).ready(function(){
+    /*
+      $(document).ready(function(){
 	    $('#fumi_log').append(msg + '<br>');
 	});
+    */
 }
 
 window.onunload = function () {
