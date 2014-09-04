@@ -438,15 +438,21 @@ var styleIndex = '0';
 var mouseEventStage;
 
 function getScreenSize() {
-    //TODO must get screen size dynamically
+    var w = $(window).height();
+    /* 9/4/2014 anonaka
+     * for some reason, if height is more than 1337, Kinetcjs done not work
+     * iPhone5 portrate position case
+     */
+    if (w > 1300) {w = 1300};
     return {
-    width: $(window).width(),
-    height: $(window).height()
+        width: $(window).width(),
+        height: w
     }
 }
 
 function createMouseEventStage() {
     var screen = getScreenSize();
+    console.log('width:'+ screen.width +' x height:' + screen.height);
     var draw_mode = false;
 
     mouseEventStage = new Kinetic.Stage({
@@ -454,12 +460,16 @@ function createMouseEventStage() {
         width: screen.width,
         height: screen.height
     });
+    
     if(mouseEventStage == null) {
-    	console.log('Failed to  create Kinetic.Stag');
+    	console.log('Failed to  create Kinetic.Stage');
     }
 
     var layer_mouse_event = new Kinetic.Layer();
 
+    if(layer_mouse_event == null) {
+        console.log('Failed to create Kinetic.Laye');
+    }
     var rect = new Kinetic.Rect({
         width: screen.width,
         height: screen.height
@@ -481,17 +491,17 @@ function createMouseEventStage() {
 
     layer_mouse_event.on("mouseup touchend", function (evt) {
         sendMouseEvent('mouseup', evt);
-	draw_mode = false;
+        draw_mode = false;
     });
 
     layer_mouse_event.on("mousedown touchstart", function (evt) {
-	sendMouseEvent('mousedown', evt);
-	draw_mode = true;
+        sendMouseEvent('mousedown', evt);
+        draw_mode = true;
     });
 
     layer_mouse_event.on('mouseleave', function (evt) {
         sendMouseEvent('mouseleave', evt);
-	draw_mode = false;
+        draw_mode = false;
     });
 
     layer_mouse_event.on('mouseenter', function (evt) {
@@ -500,7 +510,7 @@ function createMouseEventStage() {
 
     layer_mouse_event.on('dblclick dbltap', function (evt) {
         sendMouseEvent('dblclick', evt);
-	draw_mode = false;
+        draw_mode = false;
     });
 
     layer_mouse_event.on('click tap', function (evt) {});
