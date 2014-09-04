@@ -518,7 +518,7 @@ var fumiStyleFactory = new FumiStyleFactory();
 
 window.onload = function () {
     // show usage on start
-    alert('Draw anything with your finger/mouse!\nDouble click to clear.');
+    alert('Draw anything with your finger or mouse!\nDouble click to clear.');
     // set canvas size
     $(window).trigger("resize");
     broadcastCommunicator();
