@@ -558,6 +558,6 @@ function fumi_message(msg){
 
 window.onunload = function () {
 	cleanupCanvas();
-	_bcsocket.close();
+	//_bcsocket.close();
 }
 // @license-end
