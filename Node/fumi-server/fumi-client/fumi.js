@@ -322,9 +322,11 @@ function broadcastCommunicator() {
     };
 
     _bcsocket.onclose = function (e) {
-    	cleanupCanvas();
+	cleanupCanvas();
         console.log('Connection closed.');
-        window.location.href ='fumi-err-max-connection.html';
+    	_bcsocket.close();
+	alert('Sorry, Fumi room is currently full/\Plese come back later.');
+        window.location.href ='index.html';
     }
 
     function processReceivedMsg(msg) {
