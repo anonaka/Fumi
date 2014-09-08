@@ -531,6 +531,7 @@ var fumiStyleFactory = new FumiStyleFactory();
 window.onload = function () {
     // set canvas size
     $(window).trigger("resize");
+	fumiSetBackground();
     broadcastCommunicator();
     createMouseEventStage();
     // show usage on start
@@ -554,6 +555,14 @@ function fumi_message(msg){
 	    $('#fumi_log').append(msg + '<br>');
 	});
     */
+}
+
+function fumiSetBackground(){
+	var url = "http://www.asahi.com";
+	var elm = $("#fumi-background-frame");
+	elm.css("height","100%")
+	elm.css("width","100%");
+	elm.attr("src",url);
 }
 
 window.onunload = function () {
