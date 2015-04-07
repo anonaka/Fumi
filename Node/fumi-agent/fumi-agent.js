@@ -1,25 +1,17 @@
-var io = require('socket.io-client')
-var url = "truelogic.biz";
-var options = {
-    'force new connection':true,
-    port:3000
-};
+var WebSocket = require('ws');
 
-var maxConnect = 5;
-var socket;
+var ws = new WebSocket('ws://truelogic.biz:3000/fumi');
 
-for(var i = 0 ;i < maxConnect; i++) {
-    socket = io.connect(url, options);
-    socket.on('connect', function (data) {
-	connectCounter += 1;
-	console.log("connect. connectCounter=" + connectCounter);
-    });
+ws.on('open', function open() {
+    ws.send('something');
+    console.log("open");
+});
 
-    socket.on('sendMsgFromServer', function (msg) {
-	console.log("message:",msg);
-    });
-}
+ws.on('message', function(data, flags) {
+    // flags.binary will be set if a binary data is received.
+    // flags.masked will be set if the data was masked.
+    console.log("got message");
+});
 
-setTimeout(function(){
-    socket.emit("sendMsgFromClient","send client msg");
-},3000);
+
+
